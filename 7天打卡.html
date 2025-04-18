@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>7天健康零食挑战计划</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .star-container {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .star {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 10px;
+        }
+
+        .active .star {
+            color: #f1c40f;
+            text-shadow: 0 0 10px #f1c40f;
+        }
+
+        .badge {
+            color: #7f8c8d;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .active .badge {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>7天健康零食挑战计划</h1>
+    <div class="stars-container" id="starsContainer"></div>
+
+    <script>
+        const badgeNames = [
+            "垃圾零食侦察兵",
+            "黄金煎蛋侠",
+            "结界守护者",
+            "成分破译者",
+            "料理炼金师",
+            "定海神针持有者",
+            "零食终结者"
+        ];
+
+        let currentDay = parseInt(localStorage.getItem('currentDay')) || 0;
+        let lastDate = localStorage.getItem('lastDate') || '';
+
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            container.innerHTML = '';
+
+            badgeNames.forEach((name, index) => {
+                const starContainer = document.createElement('div');
+                starContainer.className = `star-container${index < currentDay ? ' active' : ''}`;
+                starContainer.onclick = () => handleStarClick(index);
+
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '☆';
+
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = name;
+
+                starContainer.appendChild(star);
+                starContainer.appendChild(badge);
+                container.appendChild(starContainer);
+            });
+        }
+
+        function handleStarClick(clickedIndex) {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (clickedIndex === currentDay && 
+                currentDay < 7 && 
+                today !== lastDate) {
+                
+                currentDay++;
+                lastDate = today;
+                localStorage.setItem('currentDay', currentDay);
+                localStorage.setItem('lastDate', lastDate);
+                createStars();
+            }
+        }
+
+        // 初始化时检查是否过期的逻辑
+        const today = new Date().toISOString().split('T')[0];
+        if (lastDate && today > lastDate) {
+            const daysPassed = Math.floor(
+                (new Date(today) - new Date(lastDate)) / (1000 * 60 * 60 * 24)
+            );
+            
+            if (daysPassed > 1) {
+                currentDay = Math.min(currentDay + daysPassed, 7);
+                localStorage.setItem('currentDay', currentDay);
+            }
+        }
+
+        // 初始创建
+        createStars();
+    </script>
+</body>
+</html>
